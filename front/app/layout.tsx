@@ -1,13 +1,17 @@
 import { AuthProvider } from '@/contexts/AuthContext'
 import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Space_Mono } from 'next/font/google'
 
-const inter = Inter({ subsets: ['latin'] })
+const spaceMono = Space_Mono({ 
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  variable: '--font-space-mono',
+})
 
 export const metadata: Metadata = {
-  title: 'Auth System',
-  description: 'A comprehensive authentication system',
+  title: 'CyberAuth',
+  description: 'A futuristic authentication system',
 }
 
 export default function RootLayout({
@@ -17,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${spaceMono.variable} font-mono`}>
         <AuthProvider>
           {children}
         </AuthProvider>

@@ -9,13 +9,14 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <Card>
+      <Card className="neon-border">
         <CardHeader>
-          <CardTitle>Welcome to Your Dashboard</CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary neon-text">Welcome to Your Dashboard</CardTitle>
           <CardDescription>Here&apos;s an overview of your account</CardDescription>
         </CardHeader>
         <CardContent>
-          <p>Hello, {user?.name}! This is your personalized dashboard.</p>
+          <p className="text-lg">Hello, <span className="font-bold text-primary">{user?.name}</span>! This is your personalized dashboard.</p>
+          <p className="mt-4">Your current role: <span className="font-bold text-primary">{user?.role}</span></p>
         </CardContent>
       </Card>
     </Layout>

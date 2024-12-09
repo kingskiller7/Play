@@ -8,12 +8,15 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { Loader2 } from 'lucide-react'
 import api from '@/lib/api'
 
 export default function SecuritySettings() {
   const { isAdmin } = useAuth()
   const [passwordMinLength, setPasswordMinLength] = useState(8)
   const [requireSpecialChars, setRequireSpecialChars] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [updating, setUpdating] = useState(false)
 
   useEffect(() => {
     const fetchSecuritySettings = async () => {
@@ -26,6 +29,8 @@ export default function SecuritySettings() {
         }
       } catch (error) {
         console.error('Failed to fetch security settings:', error)
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -36,6 +41,7 @@ export default function SecuritySettings() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setUpdating(true)
     try {
       const token = localStorage.getItem('token')
       if (token) {
@@ -45,6 +51,8 @@ export default function SecuritySettings() {
     } catch (error) {
       console.error('Failed to update security settings:', error)
       alert('Failed to update security settings')
+    } finally {
+      setUpdating(false)
     }
   }
 
@@ -54,32 +62,48 @@ export default function SecuritySettings() {
 
   return (
     <Layout>
-      <Card>
+      <Card className="neon-border">
         <CardHeader>
-          <CardTitle>Security Settings</CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary neon-text">Security Settings</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="passwordMinLength">Minimum Password Length</Label>
-              <Input
-                id="passwordMinLength"
-                type="number"
-                value={passwordMinLength}
-                onChange={(e) => setPasswordMinLength(Number(e.target.value))}
-                min={6}
-              />
+          {loading ? (
+            <div className="flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="requireSpecialChars"
-                checked={requireSpecialChars}
-                onCheckedChange={setRequireSpecialChars}
-              />
-              <Label htmlFor="requireSpecialChars">Require Special Characters</Label>
-            </div>
-            <Button type="submit">Update Security Settings</Button>
-          </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="passwordMinLength">Minimum Password Length</Label>
+                <Input
+                  id="passwordMinLength"
+                  type="number"
+                  value={passwordMinLength}
+                  onChange={(e) => setPasswordMinLength(Number(e.target.value))}
+                  min={6}
+                  className="bg-background"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="requireSpecialChars"
+                  checked={requireSpecialChars}
+                  onCheckedChange={setRequireSpecialChars}
+                />
+                <Label htmlFor="requireSpecialChars">Require Special Characters</Label>
+              </div>
+              <Button type="submit" disabled={updating}>
+                {updating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  'Update Security Settings'
+                )}
+              </Button>
+            </form>
+          )}
         </CardContent>
       </Card>
     </Layout>

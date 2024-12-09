@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Layout } from '@/components/layout'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Loader2 } from 'lucide-react'
 import api from '@/lib/api'
 
 export default function AdminDashboard() {
   const { isAdmin } = useAuth()
   const [userCount, setUserCount] = useState(0)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchUserCount = async () => {
@@ -20,6 +22,8 @@ export default function AdminDashboard() {
         }
       } catch (error) {
         console.error('Failed to fetch user count:', error)
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -34,12 +38,18 @@ export default function AdminDashboard() {
 
   return (
     <Layout>
-      <Card>
+      <Card className="neon-border">
         <CardHeader>
-          <CardTitle>Admin Dashboard</CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary neon-text">Admin Dashboard</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>Total Users: {userCount}</p>
+          {loading ? (
+            <div className="flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <p className="text-lg">Total Users: <span className="font-bold text-primary">{userCount}</span></p>
+          )}
         </CardContent>
       </Card>
     </Layout>

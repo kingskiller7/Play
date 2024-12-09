@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { Loader2 } from 'lucide-react'
 import api from '@/lib/api'
 
 interface User {
@@ -25,6 +26,9 @@ export default function UserManagement() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [role, setRole] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [updating, setUpdating] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -36,6 +40,8 @@ export default function UserManagement() {
         }
       } catch (error) {
         console.error('Failed to fetch users:', error)
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -52,6 +58,7 @@ export default function UserManagement() {
   }
 
   const handleUpdate = async () => {
+    setUpdating(true)
     try {
       const token = localStorage.getItem('token')
       if (token && editingUser) {
@@ -61,10 +68,13 @@ export default function UserManagement() {
       }
     } catch (error) {
       console.error('Failed to update user:', error)
+    } finally {
+      setUpdating(false)
     }
   }
 
   const handleDelete = async (userId: string) => {
+    setDeleting(true)
     try {
       const token = localStorage.getItem('token')
       if (token) {
@@ -73,6 +83,8 @@ export default function UserManagement() {
       }
     } catch (error) {
       console.error('Failed to delete user:', error)
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -82,74 +94,100 @@ export default function UserManagement() {
 
   return (
     <Layout>
-      <Card>
+      <Card className="neon-border">
         <CardHeader>
-          <CardTitle>User Management</CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary neon-text">User Management</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.role}</TableCell>
-                  <TableCell>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" onClick={() => handleEdit(user)}>Edit</Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Edit User</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="name">Name</Label>
-                            <Input
-                              id="name"
-                              value={name}
-                              onChange={(e) => setName(e.target.value)}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                              id="email"
-                              type="email"
-                              value={email}
-                              onChange={(e) => setEmail(e.target.value)}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="role">Role</Label>
-                            <Input
-                              id="role"
-                              value={role}
-                              onChange={(e) => setRole(e.target.value)}
-                            />
-                          </div>
-                          <Button onClick={handleUpdate}>Update User</Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                    <Button variant="destructive" onClick={() => handleDelete(user.id)} className="ml-2">Delete</Button>
-                  </TableCell>
+          {loading ? (
+            <div className="flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" onClick={() => handleEdit(user)}>Edit</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Edit User</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="name">Name</Label>
+                              <Input
+                                id="name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="bg-background"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="email">Email</Label>
+                              <Input
+                                id="email"
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="bg-background"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="role">Role</Label>
+                              <Input
+                                id="role"
+                                value={role}
+                                onChange={(e) => setRole(e.target.value)}
+                                className="bg-background"
+                              />
+                            </div>
+                            <Button onClick={handleUpdate} disabled={updating}>
+                              {updating ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Updating...
+                                </>
+                              ) : (
+                                'Update User'
+                              )}
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                      <Button variant="destructive" onClick={() => handleDelete(user.id)} className="ml-2" disabled={deleting}>
+                        {deleting ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Deleting...
+                          </>
+                        ) : (
+                          'Delete'
+                        )}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </Layout>
   )
 }
-

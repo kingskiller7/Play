@@ -37,8 +37,7 @@ export default function Settings() {
         setConfirmPassword('')
       }
     } catch (error) {
-      // setError('Failed to change password. Please check your current password.')
-      setError(`Failed to change password: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setError(`Failed to change password: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
@@ -90,3 +89,4 @@ export default function Settings() {
     </Layout>
   )
 }
+

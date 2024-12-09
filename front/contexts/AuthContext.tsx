@@ -7,8 +7,10 @@ import api from '@/lib/api';
 interface AuthContextType {
   user: any;
   isAdmin: boolean;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  register: (name: string, email: string, password: string) => Promise<void>;
   updateUser: (data: any) => Promise<void>;
 }
 
@@ -17,6 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -32,7 +35,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         })
         .catch(() => {
           localStorage.removeItem('token');
+        })
+        .finally(() => {
+          setLoading(false);
         });
+    } else {
+      setLoading(false);
     }
   }, []);
 
@@ -42,6 +50,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(response.user);
     setIsAdmin(await api.isAdmin(response.token));
     router.push(response.user.role === 'admin' ? '/admin' : '/dashboard');
+  };
+
+  const register = async (name: string, email: string, password: string) => {
+    const response = await api.register({ name, email, password });
+    localStorage.setItem('token', response.token);
+    setUser(response.user);
+    setIsAdmin(false); // New users are not admins by default
+    router.push('/dashboard');
   };
 
   const logout = () => {
@@ -60,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, isAdmin, login, logout, register, updateUser, loading }}>
       {children}
     </AuthContext.Provider>
   );
