@@ -24,7 +24,7 @@ export default function Profile() {
       await updateUser({ name, email })
       setMessage('Profile updated successfully')
     } catch (error) {
-      setMessage('Failed to update profile')
+      setMessage(`Failed to update profile: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsLoading(false)
     }
