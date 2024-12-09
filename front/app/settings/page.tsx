@@ -36,7 +36,7 @@ export default function Settings() {
         setNewPassword('')
         setConfirmPassword('')
       }
-    } catch (error) {
+    } catch (err) {
       setError('Failed to change password. Please check your current password.')
     }
   }
