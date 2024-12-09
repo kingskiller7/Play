@@ -18,8 +18,9 @@ export default function Login() {
     setError('')
     try {
       await login(email, password)
-    } catch (err) {
-      setError('Invalid email or password.')
+    } catch (error) {
+      // setError('Invalid email or password.')
+      setError(`Enter valid email or password: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
