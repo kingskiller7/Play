@@ -30,10 +30,25 @@ body {
 }
 
 .neon-text {
-  text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #0ff, 0 0 35px #0ff, 0 0 40px #0ff, 0 0 50px #0ff, 0 0 75px #0ff;
+  text-shadow:
+    0 0 5px #fff,
+    0 0 10px #fff,
+    0 0 15px #fff,
+    0 0 20px #0ff,
+    0 0 35px #0ff,
+    0 0 40px #0ff,
+    0 0 50px #0ff,
+    0 0 75px #0ff;
 }
 
 .neon-border {
-  box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #0ff, 0 0 35px #0ff, 0 0 40px #0ff, 0 0 50px #0ff, 0 0 75px #0ff;
+  box-shadow:
+    0 0 5px #fff,
+    0 0 10px #fff,
+    0 0 15px #fff,
+    0 0 20px #0ff,
+    0 0 35px #0ff,
+    0 0 40px #0ff,
+    0 0 50px #0ff,
+    0 0 75px #0ff;
 }
-
