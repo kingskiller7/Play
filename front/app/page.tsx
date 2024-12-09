@@ -9,7 +9,7 @@ export default function Home() {
         <div className="border border-white shadow-md rounded-lg p-6 w-full max-w-md">
           <header className="flex flex-col gap-8 row-start-1 items-center sm:items-start">
             <Image
-              className="dark:invert"
+              className="white:invert"
               src="https://nextjs.org/icons/next.svg"
               alt="Next.js logo"
               width={180}
