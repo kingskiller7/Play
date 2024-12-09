@@ -11,10 +11,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label"
 import api from '@/lib/api'
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
 export default function UserManagement() {
   const { isAdmin } = useAuth()
-  const [users, setUsers] = useState<any[]>([])
-  const [editingUser, setEditingUser] = useState<any>(null)
+  const [users, setUsers] = useState<User[]>([])
+  const [editingUser, setEditingUser] = useState<User | null>(null)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [role, setRole] = useState('')
@@ -37,7 +44,7 @@ export default function UserManagement() {
     }
   }, [isAdmin])
 
-  const handleEdit = (user: any) => {
+  const handleEdit = (user: User) => {
     setEditingUser(user)
     setName(user.name)
     setEmail(user.email)

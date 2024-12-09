@@ -46,6 +46,7 @@ export default function Settings() {
       <Card>
         <CardHeader>
           <CardTitle>Change Password</CardTitle>
+          {user && <p>Logged in as: { user.name }</p>}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -88,4 +89,3 @@ export default function Settings() {
     </Layout>
   )
 }
-

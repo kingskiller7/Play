@@ -12,7 +12,7 @@ export default function Dashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Welcome to Your Dashboard</CardTitle>
-          <CardDescription>Here's an overview of your account</CardDescription>
+          <CardDescription>Here&apos;s an overview of your account</CardDescription>
         </CardHeader>
         <CardContent>
           <p>Hello, {user?.name}! This is your personalized dashboard.</p>
@@ -21,4 +21,3 @@ export default function Dashboard() {
     </Layout>
   )
 }
-

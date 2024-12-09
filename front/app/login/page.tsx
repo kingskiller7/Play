@@ -19,7 +19,7 @@ export default function Login() {
     try {
       await login(email, password)
     } catch (error) {
-      setError('Invalid email or password')
+      setError('Invalid email or password.')
     }
   }
 
@@ -58,8 +58,15 @@ export default function Login() {
             </Button>
           </form>
         </CardContent>
+        <CardFooter>
+          <p className="text-sm">
+            Don&apos;t have an account?{' '}
+            <a href="/register" className="text-blue-500 hover:underline">
+              Register
+            </a>
+          </p>
+        </CardFooter>
       </Card>
     </div>
   )
 }
-
