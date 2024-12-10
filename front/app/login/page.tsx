@@ -1,27 +1,56 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import { Checkbox } from "@/components/ui/checkbox"
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const { login } = useAuth()
+
+  useEffect(() => {
+    const storedRememberMe = localStorage.getItem('rememberMe');
+    if (storedRememberMe === 'true') {
+      setRememberMe(true);
+    }
+  }, []);
+
+  const handleRememberMeChange = () => {
+    setRememberMe(!rememberMe);
+    if (!rememberMe) {
+      localStorage.setItem('rememberMe', 'true');
+    } else {
+      localStorage.removeItem('rememberMe');
+    }
+  };
+
+  const hardcodedCredentials = {
+    admin: { email: 'admin@localhost.com', password: 'admin123' },
+    user: { email: 'user@localhost.com', password: 'user123' },
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setIsLoading(true)
     try {
-      await login(email, password)
+      if (email === 'admin@localhost.com' && password === 'admin123') {
+        await login(hardcodedCredentials.admin.email, hardcodedCredentials.admin.password)
+      } else if (email === 'user@localhost.com' && password === 'user123') {
+        await login(hardcodedCredentials.user.email, hardcodedCredentials.user.password)
+      } else {
+        await login(email, password)
+      }
     } catch (error) {
       setError(`Failed to login: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
@@ -59,6 +88,19 @@ export default function Login() {
                 required
                 className="bg-background"
               />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onCheckedChange={handleRememberMeChange}
+                />
+                <Label htmlFor="rememberMe">Remember me</Label>
+              </div>
+              <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                Forgot password?
+              </Link>
             </div>
             {error && <p className="text-destructive text-sm">{error}</p>}
           </form>

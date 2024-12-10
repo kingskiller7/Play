@@ -1,10 +1,10 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { Sidebar } from './sidebar'
 import { useAuth } from '@/contexts/AuthContext'
 import { Loader2 } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 interface LayoutProps {
   children: ReactNode
@@ -13,6 +13,13 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user && !pathname.startsWith('/login') && !pathname.startsWith('/register')) {
+      router.push('/login');
+    }
+  }, [user, loading, pathname, router]);
 
   if (loading) {
     return (
@@ -22,11 +29,7 @@ export function Layout({ children }: LayoutProps) {
     );
   }
 
-  const isAuthPage = pathname === '/login' || pathname === '/register';
-
-  if (!user && !isAuthPage) {
-    return <div className="flex h-screen items-center justify-center bg-background">{children}</div>;
-  }
+  const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password';
 
   if (isAuthPage) {
     return <div className="flex h-screen items-center justify-center bg-background">{children}</div>;

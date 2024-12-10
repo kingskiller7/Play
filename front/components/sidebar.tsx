@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, User, Settings, Shield } from 'lucide-react'
+import { Home, User, Settings, Shield, Users, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/contexts/AuthContext'
 import { LogoutDialog } from './logout-dialog'
@@ -15,8 +15,8 @@ const userLinks = [
 
 const adminLinks = [
   { name: 'Admin Dashboard', href: '/admin', icon: Shield },
-  { name: 'User Management', href: '/admin/users', icon: User },
-  { name: 'Security Settings', href: '/admin/security', icon: Settings },
+  { name: 'User Management', href: '/admin/users', icon: Users },
+  { name: 'Security Settings', href: '/admin/security', icon: Lock },
 ]
 
 export function Sidebar() {

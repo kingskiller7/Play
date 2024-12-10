@@ -130,6 +130,28 @@ class api {
       throw error;
     }
   }
+
+  static async getActivityLogs(token: string) {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/admin/activity-logs`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching activity logs:", error);
+      throw error;
+    }
+  }
+
+  static async requestPasswordReset(email: string) {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/auth/forgot-password`, { email });
+      return response.data;
+    } catch (error) {
+      console.error("Error requesting password reset:", error);
+      throw error;
+    }
+  }
 }
 
 export default api;

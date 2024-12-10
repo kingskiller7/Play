@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const response = await api.register({ name, email, password });
     localStorage.setItem('token', response.token);
     setUser(response.user);
-    setIsAdmin(false);
+    setIsAdmin(false); // New users are not admins by default
     router.push('/dashboard');
   };
 

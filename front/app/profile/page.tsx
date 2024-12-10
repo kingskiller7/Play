@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Loader2 } from 'lucide-react'
+import { Loader2, User } from 'lucide-react'
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function Profile() {
   const { user, updateUser } = useAuth()
@@ -32,9 +33,16 @@ export default function Profile() {
 
   return (
     <Layout>
-      <Card className="neon-border">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-primary neon-text">Your Profile</CardTitle>
+      <Card className="neon-border max-w-2xl mx-auto">
+        <CardHeader className="flex flex-row items-center gap-4">
+          <Avatar className="h-16 w-16">
+            <AvatarImage src={user?.avatarUrl} alt={user?.name} />
+            <AvatarFallback><User className="h-8 w-8" /></AvatarFallback>
+          </Avatar>
+          <div>
+            <CardTitle className="text-2xl font-bold text-primary neon-text">Your Profile</CardTitle>
+            <p className="text-sm text-muted-foreground">Manage your account information</p>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -58,7 +66,7 @@ export default function Profile() {
               />
             </div>
             {message && <p className={`text-sm ${message.includes('success') ? 'text-green-500' : 'text-destructive'}`}>{message}</p>}
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className="w-full">
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -11,7 +11,7 @@ import { Loader2 } from 'lucide-react'
 import api from '@/lib/api'
 
 export default function Settings() {
-  const { user } = useAuth()
+  //const { user } = useAuth()
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
