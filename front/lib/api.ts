@@ -8,7 +8,9 @@ class api {
       const response = await axios.post(`${API_BASE_URL}/auth/register`, data);
       return response.data;
     } catch (error) {
-      console.error("Error registering:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data.message || 'Failed to register');
+      }
       throw error;
     }
   }
@@ -18,7 +20,9 @@ class api {
       const response = await axios.post(`${API_BASE_URL}/auth/login`, data);
       return response.data;
     } catch (error) {
-      console.error("Error logging in:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data.message || 'Failed to login');
+      }
       throw error;
     }
   }

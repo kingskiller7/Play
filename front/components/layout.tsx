@@ -16,7 +16,7 @@ export function Layout({ children }: LayoutProps) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user && !pathname.startsWith('/login') && !pathname.startsWith('/register')) {
+    if (!loading && !user && !pathname.startsWith('/login') && !pathname.startsWith('/register') && !pathname.startsWith('/forgot-password')) {
       router.push('/login');
     }
   }, [user, loading, pathname, router]);

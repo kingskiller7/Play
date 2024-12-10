@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
@@ -33,10 +33,10 @@ export default function Login() {
       localStorage.removeItem('rememberMe');
     }
   };
-
+  
   const hardcodedCredentials = {
-    admin: { email: 'admin@localhost.com', password: 'admin123' },
-    user: { email: 'user@localhost.com', password: 'user123' },
+    admin: { email: 'admin@test.com', password: 'admin123' },
+    user: { email: 'user@test.com', password: 'user123' },
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,12 +44,15 @@ export default function Login() {
     setError('')
     setIsLoading(true)
     try {
-      if (email === 'admin@localhost.com' && password === 'admin123') {
-        await login(hardcodedCredentials.admin.email, hardcodedCredentials.admin.password)
-      } else if (email === 'user@localhost.com' && password === 'user123') {
-        await login(hardcodedCredentials.user.email, hardcodedCredentials.user.password)
-      } else {
-        await login(email, password)
+      switch (`${email}:${password}`) {
+        case `${hardcodedCredentials.admin.email}:${hardcodedCredentials.admin.password}`:
+          await login(hardcodedCredentials.admin.email, hardcodedCredentials.admin.password);
+          break;
+        case `${hardcodedCredentials.user.email}:${hardcodedCredentials.user.password}`:
+          await login(hardcodedCredentials.user.email, hardcodedCredentials.user.password);
+          break;
+        default:
+          await login(email, password);
       }
     } catch (error) {
       setError(`Failed to login: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -103,19 +106,19 @@ export default function Login() {
               </Link>
             </div>
             {error && <p className="text-destructive text-sm">{error}</p>}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Logging in...
+                </>
+              ) : (
+                'Login'
+              )}
+            </Button>
           </form>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Logging in...
-              </>
-            ) : (
-              'Login'
-            )}
-          </Button>
           <p className="text-sm text-muted-foreground">
             Don&apos;t have an account?{' '}
             <Link href="/register" className="text-primary hover:underline">
