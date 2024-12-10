@@ -1,11 +1,20 @@
 import axios from 'axios';
+import bcrypt from 'bcryptjs';
 
 const API_BASE_URL = "http://localhost:5000/api";
+const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+});
 
 class api {
   static async register(data: { name: string; email: string; password: string }) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/register`, data);
+      const hashedPassword = await bcrypt.hash(data.password, 10);
+      const response = await axiosInstance.post('/auth/register', {
+        ...data,
+        password: hashedPassword
+      });
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -17,7 +26,7 @@ class api {
 
   static async login(data: { email: string; password: string }) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, data);
+      const response = await axiosInstance.post('/auth/login', data);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -29,7 +38,7 @@ class api {
 
   static async getProfile(token: string) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/auth/profile`, {
+      const response = await axiosInstance.get('/auth/profile', {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -41,7 +50,7 @@ class api {
 
   static async updateProfile(token: string, data: { name?: string; email?: string }) {
     try {
-      const response = await axios.put(`${API_BASE_URL}/auth/profile`, data, {
+      const response = await axiosInstance.put('/auth/profile', data, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -53,7 +62,7 @@ class api {
 
   static async changePassword(token: string, data: { currentPassword: string; newPassword: string }) {
     try {
-      const response = await axios.put(`${API_BASE_URL}/auth/change-password`, data, {
+      const response = await axiosInstance.put('/auth/change-password', data, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -65,7 +74,7 @@ class api {
 
   static async isAdmin(token: string) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/auth/is-admin`, {
+      const response = await axiosInstance.get('/auth/is-admin', {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data.isAdmin;
@@ -77,7 +86,7 @@ class api {
 
   static async getUsers(token: string) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/users`, {
+      const response = await axiosInstance.get('/admin/users', {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -89,7 +98,7 @@ class api {
 
   static async updateUser(token: string, userId: string, data: { name?: string; email?: string; role?: string }) {
     try {
-      const response = await axios.put(`${API_BASE_URL}/admin/users/${userId}`, data, {
+      const response = await axiosInstance.put(`/admin/users/${userId}`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -101,7 +110,7 @@ class api {
 
   static async deleteUser(token: string, userId: string) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/admin/users/${userId}`, {
+      const response = await axiosInstance.delete(`/admin/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -113,7 +122,7 @@ class api {
 
   static async getSecuritySettings(token: string) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/security-settings`, {
+      const response = await axiosInstance.get('/admin/security-settings', {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -125,7 +134,7 @@ class api {
 
   static async updateSecuritySettings(token: string, data: { passwordMinLength: number; requireSpecialChars: boolean }) {
     try {
-      const response = await axios.put(`${API_BASE_URL}/admin/security-settings`, data, {
+      const response = await axiosInstance.put('/admin/security-settings', data, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -137,7 +146,7 @@ class api {
 
   static async getActivityLogs(token: string) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/activity-logs`, {
+      const response = await axiosInstance.get('/admin/activity-logs', {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -149,7 +158,7 @@ class api {
 
   static async requestPasswordReset(email: string) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/forgot-password`, { email });
+      const response = await axiosInstance.post('/auth/forgot-password', { email });
       return response.data;
     } catch (error) {
       console.error("Error requesting password reset:", error);
@@ -159,4 +168,3 @@ class api {
 }
 
 export default api;
-

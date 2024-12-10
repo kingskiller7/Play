@@ -21,9 +21,8 @@ const adminLinks = [
 
 export function Sidebar() {
   const pathname = usePathname()
-  const { isAdmin, logout: originalLogout } = useAuth();
+  const { isAdmin, logout } = useAuth()
 
-  const logout = () => Promise.resolve(originalLogout());
   const links = isAdmin ? [...userLinks, ...adminLinks] : userLinks
 
   return (
