@@ -4,6 +4,7 @@ import { ReactNode } from 'react'
 import { Sidebar } from './sidebar'
 import { useAuth } from '@/contexts/AuthContext'
 import { Loader2 } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 interface LayoutProps {
   children: ReactNode
@@ -11,6 +12,7 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const { user, loading } = useAuth();
+  const pathname = usePathname();
 
   if (loading) {
     return (
@@ -20,7 +22,13 @@ export function Layout({ children }: LayoutProps) {
     );
   }
 
-  if (!user) {
+  const isAuthPage = pathname === '/login' || pathname === '/register';
+
+  if (!user && !isAuthPage) {
+    return <div className="flex h-screen items-center justify-center bg-background">{children}</div>;
+  }
+
+  if (isAuthPage) {
     return <div className="flex h-screen items-center justify-center bg-background">{children}</div>;
   }
 

@@ -2,9 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, User, Settings, Shield, LogOut } from 'lucide-react'
+import { Home, User, Settings, Shield } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/contexts/AuthContext'
+import { LogoutDialog } from './logout-dialog'
 
 const userLinks = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -48,13 +49,7 @@ export function Sidebar() {
         </ul>
       </nav>
       <div className="p-4">
-        <button 
-          onClick={logout}
-          className="flex w-full items-center rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-        >
-          <LogOut className="mr-3 h-4 w-4" />
-          Logout
-        </button>
+        <LogoutDialog onLogout={logout} />
       </div>
     </div>
   )
