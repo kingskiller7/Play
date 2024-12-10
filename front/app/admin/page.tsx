@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Layout } from '@/components/layout'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Users, ShieldAlert, Settings } from 'lucide-react'
+import { Loader2, Users, ShieldAlert } from 'lucide-react'
 import api from '@/lib/api'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,10 @@ interface AdminStats {
   userCount: number;
   adminCount: number;
   lastLoginDate: string;
+}
+
+interface User {
+  role: string;
 }
 
 export default function AdminDashboard() {
@@ -26,11 +30,11 @@ export default function AdminDashboard() {
       try {
         const token = localStorage.getItem('token')
         if (token) {
-          const users = await api.getUsers(token)
+          const users: User[] = await api.getUsers(token)
           const adminStats: AdminStats = {
             userCount: users.length,
-            adminCount: users.filter(user => user.role === 'admin').length,
-            lastLoginDate: new Date().toISOString() // This should ideally come from the backend
+            adminCount: users.filter((user: User) => user.role === 'admin').length,
+            lastLoginDate: new Date().toISOString()
           }
           setStats(adminStats)
         }

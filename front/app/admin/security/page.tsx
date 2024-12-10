@@ -95,13 +95,13 @@ export default function SecuritySettings() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="passwordMinLength">Minimum Password Length: {settings.passwordMinLength}</Label>
-                <Slider
+                <Input
                   id="passwordMinLength"
                   min={6}
                   max={20}
                   step={1}
-                  value={[settings.passwordMinLength]}
-                  onValueChange={(value) => handleChange('passwordMinLength', value[0])}
+                  value={settings.passwordMinLength}
+                  onChange={(e) => handleChange('passwordMinLength', parseInt(e.target.value))}
                 />
               </div>
               <div className="flex items-center space-x-2">

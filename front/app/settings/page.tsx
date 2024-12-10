@@ -11,7 +11,7 @@ import { Loader2 } from 'lucide-react'
 import api from '@/lib/api'
 
 export default function Settings() {
-  //const { user } = useAuth()
+  const { user } = useAuth()
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -52,6 +52,9 @@ export default function Settings() {
       <Card className="neon-border">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-primary neon-text">Change Password</CardTitle>
+          {user && user.role === 'admin' && (
+            <p className="text-sm text-green-600">You have admin privileges.</p>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
