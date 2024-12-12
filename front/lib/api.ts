@@ -1,7 +1,7 @@
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "http://localhost:5000/";
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
@@ -32,6 +32,18 @@ class api {
       if (axios.isAxiosError(error) && error.response) {
         throw new Error(error.response.data.message || 'Failed to login');
       }
+      throw error;
+    }
+  }
+
+  static async logout(token: string) {
+    try {
+      const response = await axiosInstance.post('/auth/logout', null, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error logging out:", error);
       throw error;
     }
   }
@@ -74,7 +86,7 @@ class api {
 
   static async isAdmin(token: string) {
     try {
-      const response = await axiosInstance.get('/auth/is-admin', {
+      const response = await axiosInstance.get('/admin/is-admin', {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data.isAdmin;
@@ -158,7 +170,7 @@ class api {
 
   static async requestPasswordReset(email: string) {
     try {
-      const response = await axiosInstance.post('/auth/forgot-password', { email });
+      const response = await axiosInstance.post('/auth/reset-password', { email });
       return response.data;
     } catch (error) {
       console.error("Error requesting password reset:", error);

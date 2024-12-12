@@ -22,6 +22,7 @@ export function LogoutDialog({ onLogout }: LogoutDialogProps) {
     setIsLoading(true)
     await onLogout()
     setIsLoading(false)
+    localStorage.removeItem('token')
     window.location.href = '/login'
   }
 
