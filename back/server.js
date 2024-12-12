@@ -1,22 +1,28 @@
-import express, { json } from "express";
+import express from "express";
 import connectDB from "./config/db.js";
 import env from "./config/env.js";
-import authRoute from "./routes/authRoute.js";
-import dashboardRoute from "./routes/dashboardRoute.js";
+import auth from './routes/authRoute.js';
+import admin from './routes/adminRoute.js';
 import cors from "cors";
+import helmet from 'helmet';
+import bodyParser from "body-parser";
 
 connectDB();
 const app = express();
 
 app.use(cors({
-    origin: "http://localhost:3000",
+    origin: env.CLIENT_URL,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
-app.use(json());
+app.use(bodyParser.json());
+app.use(helmet());
 
-app.use("/api/auth", authRoute);
-app.use("/api/dashboard", dashboardRoute);
+app.get('/', (req, res) => {
+    res.send({'Hello World!' : 'This is the server side of the application.'});
+});
+app.use('/auth', auth);
+app.use('/admin', admin);
 
 const PORT = env.PORT || 5000;
 app.listen(PORT, () => {

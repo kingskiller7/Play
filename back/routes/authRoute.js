@@ -1,10 +1,41 @@
 import express from 'express';
-import { register, login, getProfile } from '../controllers/authController.js';
+import authController from '../controllers/authController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
-const router = express.Router();
 
-router.post('/register', register);
-router.post('/login', login);
-router.get('/profile', authenticate, getProfile);
+const auth = express.Router();
 
-export default router;
+auth.get('/', (req, res) => {
+    res.send({ message: 'Welcome to the Auth Route!' });
+});
+auth.post(
+    '/register',
+    authController.register
+);
+auth.post(
+    '/login',
+    authController.login
+);
+auth.post(
+    '/reset-password',
+    authController.requestPasswordReset
+);
+
+auth.use(authenticate);
+auth.post(
+    '/logout',
+    authController.logout
+);
+auth.get(
+    '/profile',
+    authController.getProfile
+);
+auth.put(
+    '/profile',
+    authController.updateProfile
+);
+auth.put(
+    '/change-password',
+    authController.changePassword
+);
+
+export default auth;
