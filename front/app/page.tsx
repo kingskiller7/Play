@@ -3,7 +3,7 @@ import Link from 'next/link'
 export default function Home() {
   return (
     <div className="flex flex-col min-h-[100dvh] overflow-y-hidden">
-      <header className="px-4 lg:px-6 h-14 flex items-center">
+      <header className="px-4 lg:px-6 h-14">
         <Link href="#" className="flex items-center justify-center" prefetch={false}>
           <MountainIcon className="h-6 w-6" />
           <span className="sr-only">CyberAuth</span>
@@ -20,9 +20,9 @@ export default function Home() {
           </Link>
         </nav>
       </header>
-      <main className="flex-grow">
+      <main className="flex-grow flex items-center">
         <div className="w-full md:py-24 lg:py-32 xl:py-48">
-          <div className="h-full flex flex-col items-center space-y-4 text-center">
+          <div className="flex flex-col items-center space-y-4 text-center">
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
                 Next-gen Authentication System
