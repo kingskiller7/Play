@@ -53,9 +53,9 @@ export default function Home() {
         </section>
       </main> */}
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
-          <div className="container px-4 md:px-6 flex justify-center">
-            <div className="flex flex-col items-center space-y-4 text-center w-full max-w-md">
+        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 mx-auto">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
                   Next-gen Authentication System
