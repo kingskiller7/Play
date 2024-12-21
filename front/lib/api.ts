@@ -6,9 +6,49 @@ const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
 });
+axiosInstance.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  }
+)
+
+interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+}
+interface LoginData {
+  email: string;
+  password: string;
+}
+interface ProfileData {
+  name?: string;
+  email?: string;
+}
+interface SecuritySettings {
+  passwordMinLength: number;
+  requireSpecialChars: boolean;
+}
+interface PermissionData {
+  permissions: string[];
+}
+interface NewPasswordData {
+  currentPassword: string;
+  newPassword: string;
+}
 
 class api {
-  static async register(data: { name: string; email: string; password: string }) {
+  private static handleError(error: unknown): string {
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data.message || 'An error occurred';
+    }
+    return 'An unexpected error occurred';
+  }
+
+  static async register(data: RegisterData) {
     try {
       const hashedPassword = await bcrypt.hash(data.password, 10);
       const response = await axiosInstance.post('/auth/register', {
@@ -17,154 +57,116 @@ class api {
       });
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        throw new Error(error.response.data.message || 'Failed to register');
-      }
-      throw error;
+      throw new Error(api.handleError(error));
     }
   }
 
-  static async login(data: { email: string; password: string }) {
+  static async login(data: LoginData) {
     try {
       const response = await axiosInstance.post('/auth/login', data);
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        throw new Error(error.response.data.message || 'Failed to login');
-      }
-      throw error;
+      throw new Error(api.handleError(error));
     }
   }
 
-  static async logout(token: string) {
+  static async logout() {
     try {
-      const response = await axiosInstance.post('/auth/logout', null, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axiosInstance.post('/auth/logout', null);
       return response.data;
     } catch (error) {
       console.error("Error logging out:", error);
-      throw error;
+      throw new Error(api.handleError(error));
     }
   }
 
-  static async getProfile(token: string) {
+  static async getProfile(userId: string) {
     try {
-      const response = await axiosInstance.get('/auth/profile', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axiosInstance.get(`/auth/profile/${userId}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching profile:", error);
-      throw error;
+      throw new Error(api.handleError(error));
     }
   }
 
-  static async updateProfile(token: string, data: { name?: string; email?: string }) {
+  static async updateProfile(userId: string, data: ProfileData) {
     try {
-      const response = await axiosInstance.put('/auth/profile', data, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axiosInstance.put(`/auth/profile${userId}`, data);
       return response.data;
     } catch (error) {
       console.error("Error updating profile:", error);
-      throw error;
+      throw new Error(api.handleError(error));
     }
   }
 
-  static async changePassword(token: string, data: { currentPassword: string; newPassword: string }) {
+  static async changePassword(data: NewPasswordData) {
     try {
-      const response = await axiosInstance.put('/auth/change-password', data, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axiosInstance.put('/auth/change-password', data);
       return response.data;
     } catch (error) {
       console.error("Error changing password:", error);
-      throw error;
+      throw new Error(api.handleError(error));
     }
   }
 
-  static async isAdmin(token: string) {
+  static async getUsers() {
     try {
-      const response = await axiosInstance.get('/admin/is-admin', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return response.data.isAdmin;
-    } catch (error) {
-      console.error("Error checking admin status:", error);
-      throw error;
-    }
-  }
-
-  static async getUsers(token: string) {
-    try {
-      const response = await axiosInstance.get('/admin/users', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axiosInstance.get('/admin/users',);
       return response.data;
     } catch (error) {
       console.error("Error fetching users:", error);
-      throw error;
+      throw new Error(api.handleError(error));
     }
   }
 
-  static async updateUser(token: string, userId: string, data: { name?: string; email?: string; role?: string }) {
+  static async updateUser(userId: string, data: ProfileData & { role?: string }) {
     try {
-      const response = await axiosInstance.put(`/admin/users/${userId}`, data, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axiosInstance.put(`/admin/users/${userId}`, data);
       return response.data;
     } catch (error) {
       console.error("Error updating user:", error);
-      throw error;
+      throw new Error(api.handleError(error));
     }
   }
 
-  static async deleteUser(token: string, userId: string) {
+  static async deleteUser(userId: string) {
     try {
-      const response = await axiosInstance.delete(`/admin/users/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axiosInstance.delete(`/admin/users/${userId}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting user:", error);
-      throw error;
+      throw new Error(api.handleError(error));
     }
   }
 
-  static async getSecuritySettings(token: string) {
+  static async getSecuritySettings() {
     try {
-      const response = await axiosInstance.get('/admin/security-settings', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axiosInstance.get('/admin/security-settings',);
       return response.data;
     } catch (error) {
       console.error("Error fetching security settings:", error);
-      throw error;
+      throw new Error(api.handleError(error));
     }
   }
 
-  static async updateSecuritySettings(token: string, data: { passwordMinLength: number; requireSpecialChars: boolean }) {
+  static async updateSecuritySettings(data: SecuritySettings) {
     try {
-      const response = await axiosInstance.put('/admin/security-settings', data, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axiosInstance.put('/admin/security-settings', data);
       return response.data;
     } catch (error) {
       console.error("Error updating security settings:", error);
-      throw error;
+      throw new Error(api.handleError(error));
     }
   }
 
-  static async getActivityLogs(token: string) {
+  static async getActivityLogs() {
     try {
-      const response = await axiosInstance.get('/admin/activity-logs', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axiosInstance.get('/admin/activity-logs');
       return response.data;
     } catch (error) {
       console.error("Error fetching activity logs:", error);
-      throw error;
+      throw new Error(api.handleError(error));
     }
   }
 
@@ -174,7 +176,37 @@ class api {
       return response.data;
     } catch (error) {
       console.error("Error requesting password reset:", error);
-      throw error;
+      throw new Error(api.handleError(error));
+    }
+  }
+
+  static async grantPermissions(userId: string, permissions: PermissionData) {
+    try {
+      const response = await axiosInstance.post(`/admin/grant-permissions/${userId}`, {permissions});
+      return response.data;
+    } catch (error) {
+      console.error("Error while granting permission:", error);
+      throw new Error(api.handleError(error));
+    }
+  }
+
+  static async revokePermissions(userId: string, permissions: PermissionData) {
+    try {
+      const response = await axiosInstance.post(`/admin/revoke-permissions/${userId}`, {permissions});
+      return response.data;
+    } catch (error) {
+      console.error("Error while revoking permission:", error);
+      throw new Error(api.handleError(error));
+    }
+  }
+
+  static async getUserPermissions(userId: string) {
+    try {
+      const response = await axiosInstance.post(`/admin/permissions/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error while requesting permission:", error);
+      throw new Error(api.handleError(error));
     }
   }
 }

@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect } from 'react'
 import { Sidebar } from './sidebar'
+import Header from './header'
 import { useAuth } from '@/contexts/AuthContext'
 import { Loader2 } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
@@ -38,8 +39,10 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto p-8">{children}</main>
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <Header title="My App" isAdminPanel={true} />
+        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+      </div>
     </div>
   )
 }
-

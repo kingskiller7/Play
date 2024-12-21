@@ -30,6 +30,10 @@ const UserSchema = new Schema(
       type: Boolean,
       default: false
     },
+    permissions: {
+      type: [String],
+      default: []
+    },
   },
   { timestamps: true }
 );

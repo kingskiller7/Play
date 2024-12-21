@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const SecuritySettingsSchema = new mongoose.Schema({
-    passwordMinLength: {
+    passwordLength: {
         type: Number,
         default: 8
     },

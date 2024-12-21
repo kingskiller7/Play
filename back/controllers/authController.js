@@ -7,22 +7,54 @@ import bcrypt from "bcryptjs";
 const AuthController = {
   async register(req, res) {
     try {
-      const { name, email, password, role } = req.body;
+      const { name, email, password } = req.body;
+      if (password.length < 8 || password.length > 32) {
+        return res.status(400).json({
+          success: false,
+          message: "Password must be between 8 and 32 characters."
+        });
+      }
+
+      const existingUser = await User.findOne({ $or: [{ email }, { name }] });
+      if (existingUser) {
+        const field = existingUser.email === email ? "Email" : "Name";
+        return res.status(400).json({
+          success: false,
+          message: `${field} already exists!`
+        });
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await User.create({ name, email, password: hashedPassword, role });
-      console.log(user);
+      const isFirstUser = (await User.countDocuments()) === 0;
+      const user = await User.create({
+        name,
+        email,
+        password: hashedPassword,
+        role: isFirstUser ? "admin" : "user",
+        isAdmin: isFirstUser,
+      });
       res.status(201).json({
         success: true,
-        message: 'User registered successfully',
+        message: isFirstUser
+        ? "First user registered successfully and assigned as admin."
+        : "User registered successfully.",
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isAdmin: user.isAdmin
+        },
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        error: 'Registration failed',
-        details: error.message
+        message: "Registration failed.",
+        error: error.message
       });
     }
   },
+
 
   async login(req, res) {
     try {
@@ -36,15 +68,18 @@ const AuthController = {
       }
       const access_token = JWT.generateToken(user, "accessToken");
       const refresh_token = JWT.generateToken(user, "refreshToken");
-      user.tokens = user.tokens.concat({ access_token, refresh_token });
-      await user.save();
-
       const tokens = { access_token, refresh_token };
-      console.log(tokens);
       res.status(200).json({
         success: true,
         message: "Login successful.",
-        tokens
+        tokens,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isAdmin: user.isAdmin
+        },
       });
     } catch (error) {
       res.status(500).json({
@@ -56,8 +91,20 @@ const AuthController = {
   },
 
   async logout(req, res) {
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    try {
+      res.clearCookie("refreshToken");
+      res.clearCookie("accessToken");
+      res.status(200).json({
+        success: true,
+        message: "Logout successful."
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Logout failed.",
+        error: error.message
+      });
+    }
   },
 
   async getProfile(req, res) {
@@ -68,8 +115,10 @@ const AuthController = {
         success: false,
         error: 'User not found'
       });
-      console.log(user);
-      res.status(200).json(user);
+      res.status(200).json({
+        success: true,
+        user
+      });
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -87,13 +136,13 @@ const AuthController = {
         userId,
         { name, email },
         { new: true, runValidators: true }
-      );
-      console.log(updatedUser);
+      ).select("-password");
+
       res.status(200).json(
         {
           success: true,
           message: "Profile updated successfully",
-          updatedUser
+          user: updatedUser,
         }
       );
     } catch (error) {
@@ -117,9 +166,15 @@ const AuthController = {
           error: 'Current password is incorrect.'
         });
       }
+      if (newPassword.length < 8 || newPassword.length > 32) {
+        return res.status(400).json({
+          success: false,
+          message: "Password must be between 8 and 32 characters."
+        });
+      }
+
       user.password = await bcrypt.hash(newPassword, 10);
       await user.save();
-      console.log(user);
       res.status(200).json({
         success: true,
         message: 'Password updated successfully'
@@ -144,8 +199,11 @@ const AuthController = {
 
       const token = JWT.generateToken(user, "accessToken");
       const resetUrl = `${env.CLIENT_URL}/reset-password?token=${encodeURIComponent(token)}`;
-      await sendEmail(email, 'Password Reset Request', `Reset your password: ${resetUrl}`);
-      console.log(token);
+      await sendEmail(
+        email,
+        'Password Reset Request',
+        `Reset your password: ${resetUrl}`
+      );
 
       res.status(200).json({
         success: true,

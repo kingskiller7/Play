@@ -1,26 +1,9 @@
 import User from '../models/User.js';
 import ActivityLog from '../models/ActivityLog.js';
 import SecuritySettings from '../models/SecuritySettings.js';
-import Admin from '../models/Admin.js';
 
 const AdminController = {
-  async isAdmin(req, res) {
-    try {
-      const user = await User.findById(req.user._id);
-      if (user && user.role === 'admin') {
-        res.status(200).json({ message: 'User have admin status.' });
-      } else {
-        res.status(401).json({ error: "User doesn't have admin status." });
-      }
-    } catch (error) {
-      res.status(500).json({
-        error: 'Failed to check admin status',
-        details: error.message
-      });
-    }
-  },
-
-  async getUsers(res) {
+  async getUsers(req, res) {
     try {
       const users = await User.find().select("-password");
       res.status(200).json(users);
@@ -35,10 +18,10 @@ const AdminController = {
   async updateUser(req, res) {
     try {
       const { userId } = req.params;
-      const { name, email, role } = req.body;
+      const { name, email, role, isAdmin } = req.body;
       const updatedUser = await User.findByIdAndUpdate(
         userId,
-        { name, email, role },
+        { name, email, role, isAdmin },
         { new: true, runValidators: true }
       );
       res.status(200).json({
@@ -58,8 +41,7 @@ const AdminController = {
       const { userId } = req.params;
       await User.findByIdAndDelete(userId);
       res.status(200).json({
-        message: 'User deleted successfully',
-        userId
+        message: 'User deleted successfully'
       });
     } catch (error) {
       res.status(500).json({
@@ -69,19 +51,33 @@ const AdminController = {
     }
   },
 
-  async getActivityLogs(res) {
+  async getActivityLogs(req, res) {
     try {
-      const logs = await ActivityLog.find().populate('user', 'name email message');
+      const { userId, startDate, endDate, activityType } = req.query;
+
+      const query = {};
+      if (userId) query.user = userId;
+      if (activityType) query.activityType = activityType;
+      if (startDate || endDate) {
+        query.timestamp = {};
+        if (startDate) query.timestamp.$gte = new Date(startDate);
+        if (endDate) query.timestamp.$lte = new Date(endDate);
+      }
+
+      const logs = await ActivityLog.find(query)
+        .populate("user", "name email")
+        .sort({ timestamp: -1 });
+
       res.status(200).json(logs);
     } catch (error) {
       res.status(500).json({
-        error: 'Failed to fetch activity logs',
-        details: error.message
+        error: "Failed to fetch activity logs",
+        details: error.message,
       });
     }
   },
 
-  async getSecuritySettings(res) {
+  async getSecuritySettings(req, res) {
     try {
       const settings = await SecuritySettings.findOne();
       res.status(200).json(settings || {
@@ -97,15 +93,15 @@ const AdminController = {
 
   async updateSecuritySettings(req, res) {
     try {
-      const { passwordMinLength, requireSpecialChars } = req.body;
+      const { passwordLength, requireSpecialChars } = req.body;
       const updatedSettings = await SecuritySettings.findOneAndUpdate(
         {},
-        { passwordMinLength, requireSpecialChars, updatedAt: Date.now() },
+        { passwordLength, requireSpecialChars, updatedAt: Date.now() },
         { new: true, upsert: true }
       );
       res.status(200).json({
         updatedSettings,
-        message: 'Security settings updated successfully' 
+        message: 'Security settings updated successfully'
       });
     } catch (error) {
       res.status(500).json({
@@ -120,8 +116,12 @@ const AdminController = {
       const { userId } = req.params;
       const { permissions } = req.body;
       const user = await User.findById(userId);
-      if (user && user.role === 'admin') {
-        const admin = await Admin.findOne({ id: userId });
+      const admin = user.isAdmin;
+      if (!admin) {
+        return res.status(403).json({
+          error: 'Unauthorized: Only admins can grant permissions.'
+        });
+      } else {
         if (admin) {
           admin.permissions = Array.from(new Set([...admin.permissions, ...permissions]));
           await admin.save();
@@ -140,8 +140,6 @@ const AdminController = {
             newAdmin
           });
         }
-      } else {
-        res.status(401).json({ error: "User doesn't have admin status." });
       }
     } catch (error) {
       res.status(500).json({
@@ -154,17 +152,24 @@ const AdminController = {
   async revokePermissions(req, res) {
     try {
       const { userId } = req.params;
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found." });
+      }
+
       const { permissions } = req.body;
-      const admin = await Admin.findOne({ id: userId });
-      if (admin) {
-        admin.permissions = admin.permissions.filter(permission =>!permissions.includes(permission));
+      const admin = user.isAdmin;
+      if (!admin) {
+        res.status(404).json({
+          error: 'Admin not found'
+        });
+      } else {
+        admin.permissions = admin.permissions.filter(permission => !permissions.includes(permission));
         await admin.save();
         res.status(200).json({
           message: 'Permissions revoked successfully',
           admin
         });
-      } else {
-        res.status(404).json({ error: 'Admin not found' });
       }
     } catch (error) {
       res.status(500).json({
@@ -177,13 +182,20 @@ const AdminController = {
   async getPermissions(req, res) {
     try {
       const { userId } = req.params;
-      const admin = await Admin.findOne({ id: userId });
-      if (admin) {
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found." });
+      }
+
+      const admin = user.isAdmin;
+      if (!admin) {
+        res.status(404).json({
+          error: 'Admin not found'
+        });
+      } else {
         res.status(200).json({
           permissions: admin.permissions
         });
-      } else {
-        res.status(401).json({ error: "Admin not found." });
       }
     } catch (error) {
       res.status(500).json({

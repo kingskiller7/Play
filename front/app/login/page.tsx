@@ -33,27 +33,13 @@ export default function Login() {
       localStorage.removeItem('rememberMe');
     }
   };
-  
-  const hardcodedCredentials = {
-    admin: { email: 'admin@test.com', password: 'admin123' },
-    user: { email: 'user@test.com', password: 'user123' },
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setIsLoading(true)
     try {
-      switch (`${email}:${password}`) {
-        case `${hardcodedCredentials.admin.email}:${hardcodedCredentials.admin.password}`:
-          await login(hardcodedCredentials.admin.email, hardcodedCredentials.admin.password);
-          break;
-        case `${hardcodedCredentials.user.email}:${hardcodedCredentials.user.password}`:
-          await login(hardcodedCredentials.user.email, hardcodedCredentials.user.password);
-          break;
-        default:
-          await login(email, password);
-      }
+      await login(email, password);
     } catch (error) {
       setError(`Failed to login: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {

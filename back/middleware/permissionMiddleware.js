@@ -1,10 +1,15 @@
-import Admin from '../models/Admin.js';
+import User from '../models/User.js';
 
 const checkPermissions = (requiredPermissions) => async (req, res, next) => {
     try {
-        const admin = await Admin.findById(req.admin.id);
-        if (!admin) {
-            return res.status(401).json({ message: "Admin not found" });
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(401).json({ message: "User not found" });
+        }
+        
+        const admin = user.isAdmin;
+        if (admin) {
+            return next();
         }
 
         const hasPermissions = requiredPermissions.every((perm) => 
